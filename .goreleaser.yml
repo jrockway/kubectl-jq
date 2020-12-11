@@ -38,7 +38,7 @@ builds:
 archives:
     - id: kubectl-jq
       builds:
-          - jlog
+          - kubectl-jq
       format: binary
       wrap_in_directory: false
       name_template: "kubectl-jq_v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
