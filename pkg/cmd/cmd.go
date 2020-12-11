@@ -40,7 +40,7 @@ func NewJQOptions(streams genericclioptions.IOStreams) *JQOptions {
 		configFlags:  genericclioptions.NewConfigFlags(true),
 		IOStreams:    streams,
 		flatten:      true,
-		outputFormat: "prettyjson",
+		outputFormat: "jsonpretty",
 	}
 }
 
@@ -122,7 +122,7 @@ func (o *JQOptions) Run() error {
 	builder := resource.NewBuilder(o.configFlags)
 	b := builder.
 		Unstructured().
-		RequestChunksOf(1).
+		RequestChunksOf(500).
 		NamespaceParam(o.namespace).
 		DefaultNamespace().
 		AllNamespaces(o.allNamespaces).

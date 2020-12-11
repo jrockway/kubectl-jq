@@ -52,6 +52,7 @@ func outputFormat(format string) Formatter {
 	switch format {
 	case "jsonpretty":
 		f := prettyjson.NewFormatter()
+		f.Indent = 4
 		f.StringColor = color.New(color.FgGreen)
 		f.BoolColor = color.New(color.FgYellow)
 		f.NumberColor = color.New(color.FgCyan)
