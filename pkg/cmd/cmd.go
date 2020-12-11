@@ -25,6 +25,7 @@ type JQOptions struct {
 	ignoreNotFound bool
 	outputFormat   string
 	flatten        bool
+	rawStrings     bool
 
 	namespace    string
 	resourceType string
@@ -68,6 +69,7 @@ func NewCmdJQ(streams genericclioptions.IOStreams) *cobra.Command {
 	cmd.Flags().BoolVar(&o.ignoreNotFound, "ignore-not-found", o.ignoreNotFound, "If the requested object does not exist the command will return exit code 0.")
 	cmd.Flags().StringVarP(&o.outputFormat, "output", "o", o.outputFormat, outputHelp)
 	cmd.Flags().BoolVar(&o.flatten, "flatten", o.flatten, "If true, execute the JQ program over each item rather than a v1.List containing all the items.")
+	cmd.Flags().BoolVarP(&o.rawStrings, "raw", "r", o.rawStrings, "If true, output bare strings without quotes.")
 	o.configFlags.AddFlags(cmd.Flags())
 	return cmd
 }
@@ -163,7 +165,6 @@ func (o *JQOptions) Run() error {
 			if !ok {
 				break
 			}
-			var bytes []byte
 			switch x := v.(type) {
 			case error:
 				return fmt.Errorf("jq: object %s/%s: %w", i.Namespace, i.Name, x)
@@ -180,9 +181,15 @@ func (o *JQOptions) Run() error {
 			if v == nil {
 				continue
 			}
-			bytes, err := f.Marshal(v)
-			if err != nil {
-				return fmt.Errorf("format: %w", err)
+			var bytes []byte
+			if s, ok := v.(string); o.rawStrings && ok {
+				bytes = []byte(s)
+			} else {
+				var err error
+				bytes, err = f.Marshal(v)
+				if err != nil {
+					return fmt.Errorf("format: %w", err)
+				}
 			}
 			if _, err := w.Write(bytes); err != nil {
 				return fmt.Errorf("write: %w", err)
