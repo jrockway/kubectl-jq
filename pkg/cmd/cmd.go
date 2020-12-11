@@ -13,8 +13,17 @@ import (
 )
 
 const jqExample = `
-    # print the ports that pods have configured
-    kubectl jq pod .spec.containers[].ports[]
+    # Print the ports that pods have configured.
+    kubectl jq pod .spec.containers[]?.ports[]?
+
+    # Decode a secret.
+    kubectl jq secret my-secret '.data |= with_entries(.value |= @base64d)' -o yaml
+
+    # Print the exact contents of "filename.yaml" from a secret.
+    kubectl jq secret my-secret '.data |= with_entries(.value |= @base64d) | .data."filename.yaml"' -r
+
+    # Print pods with containers that have restarted.
+    kubectl jq pod -A 'select(.status.containerStatuses[]?.restartCount > 0) | {namespace: .metadata.namespace, name: .metadata.name}'
 `
 
 type JQOptions struct {
