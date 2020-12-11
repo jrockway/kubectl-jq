@@ -54,11 +54,11 @@ func NewJQOptions(streams genericclioptions.IOStreams) *JQOptions {
 	}
 }
 
-func NewCmdJQ(streams genericclioptions.IOStreams) *cobra.Command {
+func NewCmdJQ(streams genericclioptions.IOStreams, version string) *cobra.Command {
 	o := NewJQOptions(streams)
 
 	cmd := &cobra.Command{
-		Use:                   "jq [resource type] (resource name, blank for all) (jq expression, blank to just print)",
+		Use:                   "jq <resource type, like pods> [resource name, blank for all] [jq expression, blank to just print]",
 		Short:                 "Execute a JQ program against a resource and print the result",
 		Example:               jqExample,
 		DisableFlagsInUseLine: false,
@@ -74,6 +74,7 @@ func NewCmdJQ(streams genericclioptions.IOStreams) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Long = version + "\n" + cmd.Short
 	cmd.Flags().BoolVarP(&o.allNamespaces, "all-namespaces", "A", o.allNamespaces, "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
 	cmd.Flags().BoolVar(&o.ignoreNotFound, "ignore-not-found", o.ignoreNotFound, "If the requested object does not exist the command will return exit code 0.")
 	cmd.Flags().StringVarP(&o.outputFormat, "output", "o", o.outputFormat, outputHelp)
