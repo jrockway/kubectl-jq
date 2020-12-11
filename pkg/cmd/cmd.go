@@ -83,15 +83,15 @@ func (o *JQOptions) ValidateArgs(c *cobra.Command, args []string) error {
 	return nil
 }
 
-// Complete copies positional arguments into the JQOptions config and initalizes objects needed for
+// Complete copies positional arguments into the JQOptions config and initializes objects needed for
 // Run.
 func (o *JQOptions) Complete(c *cobra.Command, args []string) error {
 	cfg := o.configFlags.ToRawKubeConfigLoader()
-	if ns, _, err := cfg.Namespace(); err != nil {
+	ns, _, err := cfg.Namespace()
+	if err != nil {
 		return fmt.Errorf("extract namespace from context: %w", err)
-	} else {
-		o.namespace = ns
 	}
+	o.namespace = ns
 	o.expr = "."
 	switch len(args) {
 	case 1:
