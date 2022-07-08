@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/itchyny/gojq"
 	"github.com/spf13/cobra"
@@ -35,13 +36,14 @@ type JQOptions struct {
 	outputFormat   string
 	flatten        bool
 	rawStrings     bool
+	jqSearchPath   []string
 
 	namespace    string
 	resourceType string
 	resource     string
 	expr         string
 
-	jq        *gojq.Query
+	jq        *gojq.Code
 	formatter Formatter
 }
 
@@ -51,6 +53,7 @@ func NewJQOptions(streams genericclioptions.IOStreams) *JQOptions {
 		IOStreams:    streams,
 		flatten:      true,
 		outputFormat: "jsonpretty",
+		jqSearchPath: []string{"~/.jq"},
 	}
 }
 
@@ -80,6 +83,7 @@ func NewCmdJQ(streams genericclioptions.IOStreams, version string) *cobra.Comman
 	cmd.Flags().StringVarP(&o.outputFormat, "output", "o", o.outputFormat, outputHelp)
 	cmd.Flags().BoolVar(&o.flatten, "flatten", o.flatten, "If true, execute the JQ program over each item rather than a v1.List containing all the items.")
 	cmd.Flags().BoolVarP(&o.rawStrings, "raw", "r", o.rawStrings, "If true, output bare strings without quotes.")
+	cmd.Flags().StringSliceVar(&o.jqSearchPath, "jq-search-path", o.jqSearchPath, "A list of paths to load JQ libraries from; entries with a filename of '.jq' (not merely ending with .jq) are automatically loaded.")
 	o.configFlags.AddFlags(cmd.Flags())
 	return cmd
 }
@@ -119,9 +123,13 @@ func (o *JQOptions) Complete(c *cobra.Command, args []string) error {
 		return o.ValidateArgs(c, args)
 	}
 
-	jq, err := gojq.Parse(o.expr)
+	q, err := gojq.Parse(o.expr)
 	if err != nil {
 		return fmt.Errorf("parse jq program: %w", err)
+	}
+	jq, err := gojq.Compile(q, gojq.WithEnvironLoader(os.Environ), gojq.WithModuleLoader(gojq.NewModuleLoader(o.jqSearchPath)))
+	if err != nil {
+		return fmt.Errorf("compile jq program: %w", err)
 	}
 	o.jq = jq
 
