@@ -36,7 +36,6 @@ linters:
         - exportloopref
         - gocritic
         - gofmt
-        - golint
         - goprintffuncname
         - gosec
         - gosimple
@@ -47,8 +46,8 @@ linters:
         - nakedret
         - noctx
         - nolintlint
-        - nolintlint
         - prealloc
+        - revive
         - rowserrcheck
         - sqlclosecheck
         - staticcheck
