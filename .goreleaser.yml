@@ -3,7 +3,6 @@ env_files:
     github_token: ~/.github_token
 before:
     hooks:
-        - go mod download
         - go test ./...
         - golangci-lint run
 builds:
@@ -21,11 +20,15 @@ builds:
           - amd64
           - arm
           - arm64
+      goarm:
+          - 6
+          - 7
+      goamd64:
+          - v2
+          - v3
       ignore:
           - goos: darwin
             goarch: arm
-          - goos: darwin
-            goarch: arm64
           - goos: windows
             goarch: arm
           - goos: windows
@@ -41,17 +44,20 @@ archives:
           - kubectl-jq
       format: binary
       wrap_in_directory: false
-      name_template: "kubectl-jq_v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+      name_template: |-
+          kubectl-jq_v{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v2") }}{{ .Amd64 }}{{ end }}
 checksum:
     name_template: "checksums.txt"
 snapshot:
-    name_template: "{{ .Tag }}-next"
+    name_template: "{{ slice .Tag }}-next"
 changelog:
     sort: asc
     filters:
         exclude:
             - "^docs:"
             - "^test:"
+            - "^goreleaser:"
+            - "^README:"
 release:
     github:
         owner: jrockway
@@ -64,3 +70,15 @@ release:
     disable: false
 source:
     enabled: false
+brews:
+    - name: kubectl-jq
+      tap:
+          owner: jrockway
+          name: homebrew-tap
+      homepage: "https://github.com/jrockway/kubectl-jq"
+      description: "Query Kubernetes objects with JQ"
+      license: Apache-2.0
+      goarm: 6
+      goamd64: v2
+      test: |
+          system "#{bin}/kubectl-jq --help"
