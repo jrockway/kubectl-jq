@@ -20,7 +20,7 @@ var (
 )
 
 func main() {
-	versionString := fmt.Sprintf("kubectl-jq version %s (%s) built on %s by %s", version, commit, date, builtBy)
+	versionString := fmt.Sprintf("kubectl-jq (https://github.com/jrockway/kubectl-jq) version %s (%s) built on %s by %s", version, commit, date, builtBy)
 	flags := pflag.NewFlagSet("kubectl-jq", pflag.ExitOnError)
 	pflag.CommandLine = flags
 
