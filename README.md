@@ -11,7 +11,7 @@ the output (`kubectl get` will return one item as a lone item of that type, but 
 
 ## Installing
 
-    go install github.com/jrockway/kubectl-jq@latest
+    go install github.com/jrockway/kubectl-jq/cmd/kubectl-jq@latest
 
 Eventually this will be available through [krew](https://krew.sigs.k8s.io/), but I want to make sure
 that this actually solves my problems first. Feedback is welcome if it solves (or doesn't solve)
