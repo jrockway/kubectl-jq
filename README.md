@@ -78,7 +78,7 @@ def named(name): select(.metadata.name | test(name));
 to work around the lack of tab-completion in kubectl plugins. You can then run something like
 `kubectl jq pods 'named("foo") | ...'` to run `...` on any pods that contain the string `foo`.
 
-## Recipies
+## Recipes
 
 I mostly use `jq` to extract things from secrets with the `@base64d` operator and see what port
 number something has bound before I `port-forward` to it. But there are many things you can do.
